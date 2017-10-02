@@ -15,3 +15,6 @@
 
 #vscode
 .vscode/
+
+#release zips
+*.zip
