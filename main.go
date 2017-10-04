@@ -33,70 +33,12 @@ func main() {
 	lines := strings.Split(string(cfg), "\r\n")
 
 	for i, line := range lines {
-		if strings.Contains(line, "bDisableMouseAcceleration") {
-			reader := bufio.NewReader(os.Stdin)
-		AccelInput:
-			for {
-				fmt.Println("\nDo you want mouse acceleration 'on' or 'off'?")
-				text, _ := reader.ReadString('\n')
-				text = strings.TrimSpace(text)
-
-				switch text {
-				case "on":
-					lines[i] = "bDisableMouseAcceleration=False"
-					shouldsave = true
-					break AccelInput
-				case "off":
-					lines[i] = "bDisableMouseAcceleration=True"
-					shouldsave = true
-					break AccelInput
-				default:
-					continue
-				}
-			}
-		}
-
-		if strings.Contains(line, "MouseSensitivity=") {
-			split := strings.Split(line, "=")
-			sens := strings.TrimSpace(split[1])
-			fmt.Printf("\nPlease enter your desired mouse sensitivity (Current sens: %s)\n(just hit enter, or type 'keep', to keep current):\n", sens)
-			reader := bufio.NewReader(os.Stdin)
-			text, _ := reader.ReadString('\n')
-			text = strings.TrimSpace(text)
-			if text == "" || text == "keep" {
-				continue
-			} else {
-				lines[i] = "MouseSensitivity=" + text
-				shouldsave = true
-				fmt.Printf("Sensitivity set to %s\n", text)
-			}
-		}
-
-		if strings.Contains(line, "bEnableMouseSmoothing") {
-			smoothingdetected = true
-			reader := bufio.NewReader(os.Stdin)
-		SmoothingInput:
-			for {
-				fmt.Println("\nDo you want mouse smoothing 'on' or 'off'?")
-				text, _ := reader.ReadString('\n')
-				text = strings.TrimSpace(text)
-
-				switch text {
-				case "on":
-					lines[i] = "bEnableMouseSmoothing=True"
-					shouldsave = true
-					break SmoothingInput
-				case "off":
-					lines[i] = "bEnableMouseSmoothing=False"
-					shouldsave = true
-					break SmoothingInput
-				default:
-					continue
-				}
-			}
-		}
+		accelerationCheck(line, lines, i)
+		sensitivityCheck(line, lines, i)
+		smoothingCheck(line, lines, i)
 	}
 
+	// If smoothing isn't in the config (it isn't default), prompt to add it
 	if !smoothingdetected {
 		fmt.Println("\nDo you want to disable mouse smoothing? 'yes' or 'no'")
 		reader := bufio.NewReader(os.Stdin)
@@ -137,5 +79,75 @@ func backupFile(from string) {
 	err = ioutil.WriteFile(from+"_BACKUP", data, 0644)
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+// Check for the mouse accel config line, prompt to enable or disable
+func accelerationCheck(line string, lines []string, i int) {
+	if strings.Contains(line, "bDisableMouseAcceleration") {
+		reader := bufio.NewReader(os.Stdin)
+	AccelInput:
+		for {
+			fmt.Println("\nDo you want mouse acceleration 'on' or 'off'?")
+			text, _ := reader.ReadString('\n')
+			text = strings.TrimSpace(text)
+
+			switch text {
+			case "on":
+				lines[i] = "bDisableMouseAcceleration=False"
+				shouldsave = true
+				break AccelInput
+			case "off":
+				lines[i] = "bDisableMouseAcceleration=True"
+				shouldsave = true
+				break AccelInput
+			default:
+				continue
+			}
+		}
+	}
+}
+
+// Check for the mouse sensitivity config line, prompt to change it
+func sensitivityCheck(line string, lines []string, i int) {
+	if strings.Contains(line, "MouseSensitivity=") {
+		split := strings.Split(line, "=")
+		sens := strings.TrimSpace(split[1])
+		fmt.Printf("\nPlease enter your desired mouse sensitivity (Current sens: %s)\n(just hit enter, or type 'keep', to keep current):\n", sens)
+		reader := bufio.NewReader(os.Stdin)
+		text, _ := reader.ReadString('\n')
+		text = strings.TrimSpace(text)
+		if text != "" && text != "keep" {
+			lines[i] = "MouseSensitivity=" + text
+			shouldsave = true
+			fmt.Printf("Sensitivity set to %s\n", text)
+		}
+	}
+}
+
+// Check for the mouse smoothing config line, prompt to enable or disable
+func smoothingCheck(line string, lines []string, i int) {
+	if strings.Contains(line, "bEnableMouseSmoothing") {
+		smoothingdetected = true
+		reader := bufio.NewReader(os.Stdin)
+	SmoothingInput:
+		for {
+			fmt.Println("\nDo you want mouse smoothing 'on' or 'off'?")
+			text, _ := reader.ReadString('\n')
+			text = strings.TrimSpace(text)
+
+			switch text {
+			case "on":
+				lines[i] = "bEnableMouseSmoothing=True"
+				shouldsave = true
+				break SmoothingInput
+			case "off":
+				lines[i] = "bEnableMouseSmoothing=False"
+				shouldsave = true
+				break SmoothingInput
+			default:
+				continue
+			}
+		}
 	}
 }
