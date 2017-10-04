@@ -40,10 +40,7 @@ func main() {
 
 	// If smoothing isn't in the config (it isn't default), prompt to add it
 	if !smoothingdetected {
-		fmt.Println("\nDo you want to disable mouse smoothing? 'yes' or 'no'")
-		reader := bufio.NewReader(os.Stdin)
-		text, _ := reader.ReadString('\n')
-		text = strings.TrimSpace(text)
+		text := linePrompt("Do you want to disable mouse smoothing? 'yes' or 'no'")
 		if text == "yes" {
 			lines = append(lines, "bEnableMouseSmoothing=False")
 			shouldsave = true
@@ -53,7 +50,15 @@ func main() {
 	if shouldsave {
 		saveCfg(lines, path)
 	}
+}
 
+// Ask a question and collect some input from the user, leading and trailing newlines for seperation
+func linePrompt(question string) string {
+	// Leading newline to help seperate questions
+	fmt.Printf("\n%s\n", question)
+	reader := bufio.NewReader(os.Stdin)
+	text, _ := reader.ReadString('\n')
+	return strings.TrimSpace(text)
 }
 
 // Save our split config back to the file and set it read only, then exit
@@ -85,12 +90,9 @@ func backupFile(from string) {
 // Check for the mouse accel config line, prompt to enable or disable
 func accelerationCheck(line string, lines []string, i int) {
 	if strings.Contains(line, "bDisableMouseAcceleration") {
-		reader := bufio.NewReader(os.Stdin)
 	AccelInput:
 		for {
-			fmt.Println("\nDo you want mouse acceleration 'on' or 'off'?")
-			text, _ := reader.ReadString('\n')
-			text = strings.TrimSpace(text)
+			text := linePrompt("Do you want mouse acceleration 'on' or 'off'?")
 
 			switch text {
 			case "on":
@@ -113,10 +115,9 @@ func sensitivityCheck(line string, lines []string, i int) {
 	if strings.Contains(line, "MouseSensitivity=") {
 		split := strings.Split(line, "=")
 		sens := strings.TrimSpace(split[1])
-		fmt.Printf("\nPlease enter your desired mouse sensitivity (Current sens: %s)\n(just hit enter, or type 'keep', to keep current):\n", sens)
-		reader := bufio.NewReader(os.Stdin)
-		text, _ := reader.ReadString('\n')
-		text = strings.TrimSpace(text)
+
+		fmt.Printf("\n(Currently: %s)", sens)
+		text := linePrompt("Please enter your desired mouse sensitivity (just hit enter, or type 'keep', to keep current):")
 		if text != "" && text != "keep" {
 			lines[i] = "MouseSensitivity=" + text
 			shouldsave = true
@@ -129,12 +130,9 @@ func sensitivityCheck(line string, lines []string, i int) {
 func smoothingCheck(line string, lines []string, i int) {
 	if strings.Contains(line, "bEnableMouseSmoothing") {
 		smoothingdetected = true
-		reader := bufio.NewReader(os.Stdin)
 	SmoothingInput:
 		for {
-			fmt.Println("\nDo you want mouse smoothing 'on' or 'off'?")
-			text, _ := reader.ReadString('\n')
-			text = strings.TrimSpace(text)
+			text := linePrompt("Do you want mouse smoothing 'on' or 'off'?")
 
 			switch text {
 			case "on":
