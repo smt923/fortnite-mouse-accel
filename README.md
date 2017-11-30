@@ -1,7 +1,7 @@
 # fortnite-mouse-accel
 
 
-#### Due to recent patches this tool doesn't really provide any benefit anymore, but should still be functional
+### Due to recent patches this tool doesn't really provide any benefit anymore, but should still be functional
 
 
 Quickly edit your sensitivity and enable or disable mouse accel/smoothing in your [Fortnite](https://fortnite.com/) config, while also keeping it read only so it doesn't reset
